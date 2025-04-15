@@ -40,8 +40,8 @@ class NSGA2_SVMFS:
 
     def __init__(self, method, data, costs, population_size, inputs, output, num_selected_features,
                  allow_clones=0, p_mutation=0.7, p_mutate_individual=0.4,
-                 p_mutate_feature=0.4, p_mutate_coord=0.2, coord_mutation_type=0):
-
+                 p_mutate_feature=0.4, p_mutate_coord=0.2, coord_mutation_type=0, logger=None):
+        self.logger = logger
         self.method = method
         self.data = data
         self.costs = costs
@@ -65,7 +65,7 @@ class NSGA2_SVMFS:
         Parameters
         ----------
         train : str, optional
-            Training mode: 'time' (run for a number of seconds) or 'iter' (run for a number of iterations).
+            Training mode: 'sec' (run for a number of seconds) or 'iter' (run for a number of iterations).
         num_iter : int, optional
             Number of iterations or seconds (depending on 'train') (default is 10).
         """
@@ -76,19 +76,21 @@ class NSGA2_SVMFS:
             self.costs, self.num_selected_features, self.allow_clones
         )
         self.population.fnds(self.method)
-
+        self.logger(f"Initial population: {len(self.population.solutions_df[self.population.solutions_df.FRONT == 0])} solutions in front 0")
         print(f"Initial population: {len(self.population.solutions_df[self.population.solutions_df.FRONT == 0])} solutions in front 0")
 
         i = 1
-        if train == 'time':
+        if train == 'sec':
             max_time = time() + num_iter
             while time() < max_time:
                 self.nsga2()
+                self.logger(f"Iteration {i}: {len(self.population.solutions_df[self.population.solutions_df.FRONT == 0])} solutions in front 0")
                 print(f"Iteration {i}: {len(self.population.solutions_df[self.population.solutions_df.FRONT == 0])} solutions in front 0")
                 i += 1
         elif train == 'iter':
             while i <= num_iter:
                 self.nsga2()
+                self.logger(f"Iteration {i}: {len(self.population.solutions_df[self.population.solutions_df.FRONT == 0])} solutions in front 0")
                 print(f"Iteration {i}: {len(self.population.solutions_df[self.population.solutions_df.FRONT == 0])} solutions in front 0")
                 i += 1
         else:
